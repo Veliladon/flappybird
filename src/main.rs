@@ -1,10 +1,11 @@
 use rand::prelude::*;
-use rusty_engine::prelude::{bevy::utils::label, *};
+use rusty_engine::prelude::*;
 use std::collections::HashMap;
 
 const PIPE_SPEED: f32 = 400.0;
 const PLAYER_X: f32 = -450.0;
 const GRAVITY: f32 = 9.8;
+const MOVEMENT_MULTIPLIER: f32 = 40.0;
 
 struct GameState {
     game_over: bool,
@@ -56,7 +57,11 @@ fn game_logic(engine: &mut Engine, game_state: &mut GameState) {
     }
 
     if engine.keyboard_state.just_pressed(KeyCode::Space) {
-        game_state.velocity = 10.0;
+        game_state.velocity += 5.0;
+        if game_state.velocity >= 10.0 {
+            game_state.velocity = 10.0;
+        }
+        println!("New Velocity: {}", game_state.velocity);
     }
 
     if game_state.spawn_timer.just_finished() {
@@ -106,6 +111,15 @@ fn game_logic(engine: &mut Engine, game_state: &mut GameState) {
 
                 println!("Score: {}", game_state.score);
             }
+        }
+
+        if sprite.label.starts_with("player") {
+            game_state.velocity -= GRAVITY * engine.delta_f32;
+            if game_state.velocity <= -10.0 {
+                game_state.velocity = -10.0;
+            }
+            // println!("Velocity: {}", game_state.velocity);
+            sprite.translation.y += game_state.velocity * MOVEMENT_MULTIPLIER * engine.delta_f32;
         }
     }
 
