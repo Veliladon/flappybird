@@ -1,11 +1,12 @@
 use rand::prelude::*;
 use rusty_engine::prelude::*;
-use std::collections::HashMap;
+use std::{collections::HashMap, f32::consts::PI};
 
 const PIPE_SPEED: f32 = 400.0;
 const PLAYER_X: f32 = -450.0;
 const GRAVITY: f32 = 9.8;
 const MOVEMENT_MULTIPLIER: f32 = 40.0;
+const TURNING_RATE: f32 = 0.02;
 
 struct GameState {
     game_over: bool,
@@ -39,9 +40,12 @@ fn main() {
         ..Default::default()
     });
 
-    let player = game.add_sprite("player", SpritePreset::RollingBallBlue);
+    let player = game.add_sprite("player", SpritePreset::RacingCarBlue);
+    player.scale = 0.5;
     player.translation.x = PLAYER_X;
     player.layer = 10.0;
+
+    player.rotation = -(PI / 2.0);
 
     game.add_logic(game_logic);
     game.run(game_state);
@@ -119,7 +123,19 @@ fn game_logic(engine: &mut Engine, game_state: &mut GameState) {
                 game_state.velocity = -10.0;
             }
             // println!("Velocity: {}", game_state.velocity);
+
             sprite.translation.y += game_state.velocity * MOVEMENT_MULTIPLIER * engine.delta_f32;
+
+            // sprite.rotation = target_rotation;
+            //let target_rotation = ((game_state.velocity / (10.0 / (PI / 2.0))).sin() * (PI / 2.0));
+            let target_rotation = (game_state.velocity / (10.0 / (PI / 2.0))).sin() * (PI / 4.0);
+
+            if target_rotation - sprite.rotation >= TURNING_RATE {
+                sprite.rotation += TURNING_RATE;
+            } else {
+                sprite.rotation = target_rotation;
+            }
+            //println!("Rotation: {}", sprite.rotation);
         }
     }
 
