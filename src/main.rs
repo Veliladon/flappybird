@@ -8,8 +8,16 @@ const GRAVITY: f32 = 9.8;
 const MOVEMENT_MULTIPLIER: f32 = 40.0;
 const TURNING_RATE: f32 = 0.02;
 
+#[derive(PartialEq)]
+enum GameStatus {
+    Menu,
+    Playing,
+    GameOver,
+}
+
 struct GameState {
     game_over: bool,
+    game_status: GameStatus,
     pipes_spawned: usize,
     spawn_timer: Timer,
     score: usize,
@@ -28,6 +36,7 @@ fn main() {
 
     let game_state = GameState {
         game_over: false,
+        game_status: GameStatus::Menu,
         pipes_spawned: 0,
         spawn_timer: Timer::from_seconds(0.1, false),
         score: 0,
@@ -36,7 +45,7 @@ fn main() {
     };
 
     game.window_settings(WindowDescriptor {
-        title: "Flappy Bird".into(),
+        title: "Flappy Car".into(),
         ..Default::default()
     });
 
@@ -53,6 +62,18 @@ fn main() {
 
 fn game_logic(engine: &mut Engine, game_state: &mut GameState) {
     // game logic goes here
+
+    if game_state.game_status == GameStatus::Menu {
+        if engine.keyboard_state.just_pressed(KeyCode::Space) {
+            game_state.game_status = GameStatus::Playing
+        }
+        return;
+    }
+
+    if game_state.game_status == GameStatus::GameOver {
+        return;
+    }
+
     game_state.spawn_timer.tick(engine.delta);
     let mut labels_to_delete: Vec<String> = Vec::new();
 
