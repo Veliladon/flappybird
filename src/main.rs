@@ -57,6 +57,7 @@ fn main() {
     player.rotation = -(PI / 2.0);
 
     game.add_logic(game_logic);
+
     game.run(game_state);
 }
 
@@ -86,13 +87,11 @@ fn game_logic(engine: &mut Engine, game_state: &mut GameState) {
         if game_state.velocity >= 10.0 {
             game_state.velocity = 10.0;
         }
-        println!("New Velocity: {}", game_state.velocity);
     }
 
     if game_state.spawn_timer.just_finished() {
         let gap = thread_rng().gen_range(0..10) as f32;
         let spawn_location = thread_rng().gen_range(-180.0..180.0);
-        println!("Gap: {}, Spawn Location: {}", gap, spawn_location);
 
         let top_label = format!("pipe_top{}", game_state.pipes_spawned);
         let bottom_label = format!("pipe_bot{}", game_state.pipes_spawned);
@@ -133,8 +132,6 @@ fn game_logic(engine: &mut Engine, game_state: &mut GameState) {
             {
                 game_state.score += 1;
                 game_state.pipe_list.get_mut(&sprite.label).unwrap().scored = true;
-
-                println!("Score: {}", game_state.score);
             }
         }
 
@@ -143,12 +140,9 @@ fn game_logic(engine: &mut Engine, game_state: &mut GameState) {
             if game_state.velocity <= -10.0 {
                 game_state.velocity = -10.0;
             }
-            // println!("Velocity: {}", game_state.velocity);
 
             sprite.translation.y += game_state.velocity * MOVEMENT_MULTIPLIER * engine.delta_f32;
 
-            // sprite.rotation = target_rotation;
-            //let target_rotation = ((game_state.velocity / (10.0 / (PI / 2.0))).sin() * (PI / 2.0));
             let target_rotation = (game_state.velocity / (10.0 / (PI / 2.0))).sin() * (PI / 4.0);
 
             if target_rotation - sprite.rotation >= TURNING_RATE {
@@ -156,12 +150,10 @@ fn game_logic(engine: &mut Engine, game_state: &mut GameState) {
             } else {
                 sprite.rotation = target_rotation;
             }
-            //println!("Rotation: {}", sprite.rotation);
         }
     }
 
     for sprite in labels_to_delete {
         engine.sprites.remove(&sprite);
-        println!("Deleted: {}", sprite);
     }
 }
